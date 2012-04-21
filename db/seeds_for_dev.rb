@@ -46,10 +46,13 @@ Startup.all.each do |startup|
   startup.attach_user(u, :member, Faker::Lorem.word)
   startup.confirm_user(u)
 
+  attributes = Proposal.make.attributes
+  investors = User.investors.sample
+
   if rand(2) == 0
-    startup.create_proposal(User.investors.sample, Proposal.make.attributes, 'draft')
+    startup.create_proposal(investors, attributes, 'draft')
   else
-    startup.create_proposal(user, Proposal.make.attributes, 'submitted')
+    startup.create_proposal(user, attributes, 'submitted')
   end
 end
 
@@ -68,7 +71,7 @@ end
 p ' > micro posts ...'
 
 (3 + rand(3)).times do
-  User.order('RAND()').each do |u|
+  User.all.shuffle.each do |u|
     u.add_micro_post(Faker::Lorem.sentence)
   end
 end
@@ -78,7 +81,7 @@ p ' > private messages ...'
 
 User.all.each do |u|
   3.times do
-    target_user = User.order('RAND()').first
+    target_user = User.all.shuffle.first
     u.send_private_message(user, Faker::Lorem.sentence) if rand(5) == 0
     u.send_private_message(target_user, Faker::Lorem.sentence)
     (1 + rand(1)).times do
@@ -87,8 +90,8 @@ User.all.each do |u|
     end
   end
 
-  u.sent_messages.order('RAND()').limit(3).each { |msg| msg.mark_as_read! }
-  u.sent_messages.order('RAND()').limit(3).each { |msg| msg.mark_as_archived! }
+  u.sent_messages.order('RANDOM()').limit(3).each { |msg| msg.mark_as_read! }
+  u.sent_messages.order('RANDOM()').limit(3).each { |msg| msg.mark_as_archived! }
 end
 
 p 'Finished creating seeds data for development.'
